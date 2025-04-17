@@ -17,22 +17,47 @@ message_list = [
   }
 ]
 
-# # Call the API to get the next message from GPT
-api_response = client.chat(
-  parameters: {
-    model: "gpt-3.5-turbo",
-    messages: message_list
-  }
-)
-
+# Call the API to get the next message from GPT
+# api_response = client.chat(
+#   parameters: {
+#     model: "gpt-3.5-turbo",
+#     messages: message_list
+#   }
+# )
 # pp api_response
-parsed_choice = api_response.fetch("choices")
-choice_result = parsed_choice.at(0)
-parsed_message = choice_result.fetch("message")
-first_message = parsed_message.fetch("content")
+
+# Parse the JSON responce
+# parsed_choice = api_response.fetch("choices")
+# choice_result = parsed_choice.at(0)
+# parsed_message = choice_result.fetch("message")
+# first_message = parsed_message.fetch("content")
+# pp first_message
+
+# OR WITH FEWER LINES
+# parsed_choice = api_response.fetch("choices").at(0).fetch("message").fetch("content")
+# pp parsed_choice
+
 
 # #Program Start
-puts "Hello! How can I help you today?"
-puts "-" * 50
-user_input = gets.chomp
-message_list << user_input
+user_input = ""
+while user_input.downcase != "bye"
+  puts "Hello! How can I help you today?"
+  puts "-" * 50
+  user_input = gets.chomp
+
+  if user_input != "bye"
+  message_list << {"role" => "user", "content" => user_input}
+  api_response = client.chat(
+    parameters: {
+      model: "gpt-3.5-turbo",
+      messages: message_list
+    }
+  )
+  parsed_choice = api_response.fetch("choices").at(0).fetch("message").fetch("content")
+  puts parsed_choice
+  puts "-" * 50
+
+  # Add the assistant's response to the message list
+  message_list << { "role" => "assistant", "content" => parsed_choice }
+  end
+end
